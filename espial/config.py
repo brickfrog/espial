@@ -7,14 +7,21 @@ class Config(object):
     def __init__(self):
         self.data_dir = ""
         self.ANALYSIS = {  # conf of the actual analysis algorithm - see ARCHITECTURE.md
-            "openness": 0,  # Positive values (eg -1) will lower the thresholds motif mesh uses when deciding whether to add links / ideas to the graph or not. This is better for exploration. Negative values will make it more strict (less concepts, higher quality).
-            "max_concepts": 500,  # Upper bound on number of concepts saved in graph.
-            "batch_size": 40,  # Processes documents by batches. If running on large documents, you may want to reduce batch size so as not to overload memory.
+            # Positive values (eg -1) will lower the thresholds motif mesh uses when 
+            # deciding whether to add links / ideas to the graph or not. 
+            # This is better for exploration. Negative values will make it more strict (less concepts, higher quality).
+            "openness": 0,
+            # Upper bound on number of concepts saved in graph.
+            "max_concepts": 500,
+            # Processes documents by batches. If running on large documents,
+            #  you may want to reduce batch size so as not to overload memory.
+            "batch_size": 40,
             "rerun": 0,
             "cutoffs": {  # criteria used to remove a concept
                 "min_links": 2,  # min number of doc-concept links
                 "min_avg_children_sim": 0.6,  # avg similarty of the child of a concept
-                "min_avg_noun_sim": 0.4,  # min avg similartiy of concept vector, if it's a word, with its children
+                # min avg similartiy of concept vector, if it's a word, with its children
+                "min_avg_noun_sim": 0.4,
                 "min_avg_ent_sim": 0.3,  # same but for entities
                 "min_avg_noun_tf_idf": 0.075,
                 "min_avg_ent_tf_idf": 0.01,
@@ -30,15 +37,25 @@ class Config(object):
 
     def get_item_id(self, item):
         """
-        Gets the id of the document. If your knowledge base has IDs you can fetch them here, otherwise Espial will compute a hash
+        Gets the id of the document. If your knowledge base has IDs 
+        you can fetch them here, otherwise Espial will compute a hash
         """
         return sha256(item["content"].encode()).hexdigest()
 
     def get_title(self, path, contents):
         """
-        Gets the title of the document. If your knowledge base uses attributes like frontmatter this is recommended. Defaults to the filename.
+        Gets the title of the document. If your knowledge base uses attributes 
+        like frontmatter this is recommended. Defaults to the filename.
         """
-        return path.parts[-1]
+
+        # Extracts the Caption title from the Tiddler
+        for line in contents:
+            if line.startswith('caption: '):
+                return line.replace('caption: ','')
+        
+        # Otherwise uses the filename with .tid removed
+        return path.parts[-1][:-4]
+
 
     def get_link(self, item):
         """Creates a link to the item, defaulting to Espial's view."""

@@ -1,6 +1,7 @@
 import click
 from espial.config import Config
 from espial import create_app
+from flask_frozen import Freezer
 from pathlib import Path
 
 
@@ -35,6 +36,7 @@ def run(data_dir, rerun, port, host):
     config.ANALYSIS["rerun"] = rerun
     app = create_app(config)
     app.run(port=config.port, host=config.host)
+
 
 @espial.command("config")
 @click.argument("data-dir", type=click.Path(exists=True))

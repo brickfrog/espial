@@ -12,7 +12,8 @@ def most_relevant_tags(mesh, n_tags=30, entities=False):
     ]
     if entities:  # only return entities
         concept_avgs = list(
-            filter(lambda x: mesh.graph.nodes[x["name"]]["is_ent"], concept_avgs)
+            filter(
+                lambda x: mesh.graph.nodes[x["name"]]["is_ent"], concept_avgs)
         )
     concept_avgs.sort(key=lambda x: x["relevance"], reverse=True)
     for i in range(min(len(concept_avgs), n_tags)):
@@ -33,7 +34,8 @@ def find_most_sim(mesh, doc_id, top_n=10):
     doc_conc = list(map(lambda x: x[1], mesh.graph.out_edges(doc_id)))
     for other_doc in mesh.doc_cache.values():
         if other_doc._.id != doc_id:
-            other_doc_conc = list(map(lambda x: x[1], mesh.graph.out_edges(other_doc._.id)))
+            other_doc_conc = list(
+                map(lambda x: x[1], mesh.graph.out_edges(other_doc._.id)))
             inter = [conc for conc in doc_conc if conc in other_doc_conc]
             results.append(
                 {
@@ -52,7 +54,8 @@ def search_q(mesh, q, top_n=10):
     results = []
     potent_concepts = mesh.get_existing_doc_concepts(q)
     for doc2 in mesh.doc_cache.values():
-        doc_concepts = list(map(lambda x: x[1], mesh.graph.out_edges(doc2._.id)))
+        doc_concepts = list(
+            map(lambda x: x[1], mesh.graph.out_edges(doc2._.id)))
         inter = [conc for conc in doc_concepts if conc in potent_concepts]
         sim = doc2.similarity(q)
         if sim:
@@ -132,9 +135,11 @@ def process_markdown(content):
         "with",
         "you",
         "your",
+        "pao"
     ]
     content = " ".join(filter(lambda x: not x in STOPWORDS, content.split()))
-    content = re.sub(r"\[([^\]]*)\]\(http[^)]+\)", r"\1", content)  # remove links
+    content = re.sub(r"\[([^\]]*)\]\(http[^)]+\)",
+                     r"\1", content)  # remove links
     return content
 
 

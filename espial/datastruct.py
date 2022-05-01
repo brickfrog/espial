@@ -32,7 +32,8 @@ class ConceptMesh:
             concept = concept[0]
             text = "".join(
                 filter(
-                    lambda x: str.isalnum(x) or x == " ", concept.lemma_.lower().strip()
+                    lambda x: str.isalnum(
+                        x) or x == " ", concept.lemma_.lower().strip()
                 )
             )
             if concept.is_stop or not concept.is_alpha:
@@ -40,7 +41,8 @@ class ConceptMesh:
         else:
             text = "".join(
                 filter(
-                    lambda x: str.isalnum(x) or x == " ", concept.text.lower().strip()
+                    lambda x: str.isalnum(
+                        x) or x == " ", concept.text.lower().strip()
                 )
             )
             if concept.root.is_stop or not concept.root.is_alpha:
@@ -78,7 +80,8 @@ class ConceptMesh:
         for item, concept, data in list(self.graph.edges(data=True)):
             if concept in self.graph:
                 tf = data["count"] / self.graph.nodes[item]["tf"]
-                idf = math.log(self.nb_docs / self.graph.nodes[concept]["count"])
+                idf = math.log(
+                    self.nb_docs / self.graph.nodes[concept]["count"])
                 tf_idf = tf * idf
                 is_ent = self.graph.nodes[concept]["is_ent"]
                 remove_crit = (
@@ -167,9 +170,11 @@ class ConceptMesh:
         for concept in list(self.concept_cache.keys()):
             if concept in self.graph:
                 self.trim_concept(concept)
-                max_links = max(max_links, len(list(self.graph.in_edges(concept))) - 2)
+                max_links = max(max_links, len(
+                    list(self.graph.in_edges(concept))) - 2)
         for concept in list(self.concept_cache.keys()):
-            no_links_factor = (len(self.graph.in_edges(concept)) - 2) / max_links
+            no_links_factor = (
+                len(self.graph.in_edges(concept)) - 2) / max_links
             self.graph.nodes[concept]["score"] += no_links_factor * 1.5
 
     def process_entities(self, doc):
@@ -191,10 +196,10 @@ class ConceptMesh:
             ):
                 if len(ent) > 2:
                     for i in range(len(ent) - 1):
-                        saved_ents.append(ent[i : i + 2])
+                        saved_ents.append(ent[i: i + 2])
                 if len(ent) > 1:
                     for i in range(len(ent)):
-                        saved_ents.append(ent[i : i + 1])
+                        saved_ents.append(ent[i: i + 1])
                 saved_ents.append(ent)
         return saved_ents
 
@@ -216,7 +221,8 @@ class ConceptMesh:
                 self.create_link(doc._.id, [concept])
 
     def get_existing_doc_concepts(self, doc):
-        """Get concepts that exist in the mesh, from a document, without integrating them"""
+        """Get concepts that exist in the mesh, from a document, 
+        without integrating them"""
         concepts = [
             c.text
             for c in self.process_nouns(doc) + self.process_entities(doc)
@@ -240,11 +246,12 @@ class ConceptMesh:
         concepts.sort(key=lambda x: x[1], reverse=True)
         dg = self.graph.copy()
         for e in dg.edges(data=True):  # todo make this faster
-            dg[e[0]][e[1]]["orig"] = list(e[2]["orig"])  # remove set type for json dump
+            # remove set type for json dump
+            dg[e[0]][e[1]]["orig"] = list(e[2]["orig"])
 
         if max_conc and max_conc < len(concepts):
             for conc, score in concepts[
-                max_conc - 1 : -1
+                max_conc - 1: -1
             ]:  # remove concepts below score
                 dg.remove_node(conc)
         return dg

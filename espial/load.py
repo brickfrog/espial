@@ -8,7 +8,8 @@ import spacy
 from pathlib import Path
 from hashlib import sha256
 
-hash_fn = lambda item: sha256(item["content"].encode()).hexdigest()
+
+def hash_fn(item): return sha256(item["content"].encode()).hexdigest()
 
 
 def load_mesh(config):
@@ -17,17 +18,20 @@ def load_mesh(config):
     rerun = config.ANALYSIS["rerun"]
     nlp = spacy.load("en_core_web_md")
     Doc.set_extension("title", default=None)
+    Doc.set_extension("url_title", default=None)
     Doc.set_extension("id", default=None)
     Doc.set_extension("path", default=None)
     Doc.set_extension("hash", default=None)
     items = {}
-    for path in data_dir.rglob("*.md"):
+    for path in (fn for fn in data_dir.rglob("*.tid") if not (fn.name.startswith('$_') or fn.name.startswith('20'))):
         if any([path.parent == data_dir / p for p in config.IGNORE]):
             continue
         content = path.open("r").read()
+        lined_content = path.open("r").readlines()
         item = {
             "content": content,
-            "title": config.get_title(path, content),
+            "title": config.get_title(path, lined_content),
+            "url_title": config.get_title(path, content),
             "path": str(path),
         }
         item["hash"] = hash_fn(item)
@@ -44,7 +48,8 @@ def load_mesh(config):
             for doc in doc_bin.get_docs(nlp.vocab):
                 doc._.id = str(doc._.id)
                 excluded_path = any(
-                    [Path(doc._.path).parent == data_dir / p for p in config.IGNORE]
+                    [Path(doc._.path).parent == data_dir /
+                     p for p in config.IGNORE]
                 )
                 if (
                     doc._.id in items
@@ -77,6 +82,7 @@ def load_mesh(config):
                     {
                         "id": id,
                         "title": item["title"],
+                        "url_title": item["url_title"].replace("_", "%2F"),
                         "path": item["path"],
                         "hash": item["hash"],
                     },
@@ -117,6 +123,7 @@ def load_mesh(config):
         doc._.id = ctx["id"]
         doc._.path = ctx["path"]
         doc._.hash = ctx["hash"]
+        doc._.url_title = ctx["url_title"]
         doc_bin.add(doc)
         if (
             ctx["id"] in doc_cache and ctx["id"] in mesh.graph
@@ -125,7 +132,8 @@ def load_mesh(config):
         mesh.process_document(doc)
 
     print(
-        time.time() - a, f"time spent to process docs, of {len(unseen_docs)} new ones."
+        time.time() -
+        a, f"time spent to process docs, of {len(unseen_docs)} new ones."
     )
     if len(unseen_docs):
         with dumped_annot.open("wb") as f:

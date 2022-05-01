@@ -5,6 +5,7 @@
     {% for c in tags %}
 	  <a href="{{ url_for('view_concept', concept=c) }}" class="tags">{{ c }}</a>
     {% endfor %}
+    <p> Link to TiddlyWiki content: <a href= "https://justin.vc/#{{ doc._.url_title }}">{{ doc._.url_title }}</a> </p>
     <h2>Most similar documents</h2>
     <ul>
       {% for match in most_sim %}

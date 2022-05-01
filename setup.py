@@ -12,8 +12,8 @@ setup(
     version='0.2.2',
     author="Uzay-G",
     author_email="halcyon@disroot.org",
-    #long_description=long_description,
-    #long_description_content_type="text/markdown",
+    # long_description=long_description,
+    # long_description_content_type="text/markdown",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License"
